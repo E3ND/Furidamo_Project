@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Inject, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Inject, Req, UseInterceptors, UploadedFile, HttpException, HttpStatus, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
 
 import { Request } from 'express';
 
@@ -8,6 +8,10 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { loginUserDto } from './dto/login-user.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import * as fs from 'fs';
 
 @Controller('user/')
 export class UserController {
@@ -17,7 +21,38 @@ export class UserController {
     ) {}
  
   @Post('/create')
-  createUser(@Body() createUserDto: CreateUserDto) {
+  @UseInterceptors(
+    FileInterceptor('imageUser', {
+      storage: diskStorage({
+        destination: './src/public/images/image-users', 
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          return cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+      fileFilter(req, file, cb) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+          return cb(new HttpException('Apenas imagens JPG, JPEG, e PNG são permitidas!', HttpStatus.BAD_REQUEST), false)
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async createUser(@Body() createUserDto: CreateUserDto, @UploadedFile() imageUser: Express.Multer.File) {
+    if(imageUser && imageUser.size > 3 * 1024 * 1024) {
+      fs.unlink(`src/public/images/image-users/${imageUser.filename}`, (error) => {
+        if(error) {
+          console.log(error+" Ao tentar excluir => "+imageUser.filename)
+          return new HttpException('Erro no servidor, tente novamente mais tarde!', HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+      })
+      return new HttpException('Apenas imagens de até 3mb são permitidas!', HttpStatus.BAD_REQUEST)
+    }
+    
+    createUserDto.imageUser = imageUser.fieldname
     return this.userService.createUser(createUserDto);
   }
 
