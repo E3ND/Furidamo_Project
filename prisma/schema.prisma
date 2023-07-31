@@ -11,13 +11,58 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String 
-  email     String @unique
-  password  String
-  imageUser String?
+  id                String    @id @default(uuid())
+  name              String 
+  email             String    @unique
+  password          String
+  imageUser         String?
+  likePublications  Json[]    @default([])
 
-  createAd  DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime?  
+  deletedAt         DateTime? 
+
+
+  publications      Publication[]
+  comments          Comment[]
+}
+
+model Publication {
+  id        String   @id @default(uuid())
+  title     String
+  text      String
+  like      Int
+  deslike   Int
+  imageName String?
+  videoName String?
+  edited    Boolean
+
+  createdAt DateTime  @default(now())
   updatedAt DateTime?  
   deletedAt DateTime? 
+
+  comments Comment[]
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Comment {
+  id            String   @id @default(uuid())
+  text          String
+  like          Int
+  deslike       Int
+  imageName     String?
+  videoName     String?
+  edited        Boolean
+
+  createdAt     DateTime  @default(now())
+  updatedAt DateTime?  
+  deletedAt DateTime? 
+
+  puclicationId String
+  publication   Publication @relation(fields: [puclicationId], references: [id])
+
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
 }

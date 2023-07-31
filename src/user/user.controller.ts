@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Inject, Req, UseInterceptors, UploadedFile, HttpException, HttpStatus, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, UseInterceptors, UploadedFile, HttpException, HttpStatus } from '@nestjs/common';
 
 import { Request } from 'express';
 
@@ -52,7 +52,7 @@ export class UserController {
       return new HttpException('Apenas imagens de até 3mb são permitidas!', HttpStatus.BAD_REQUEST)
     }
     
-    createUserDto.imageUser = imageUser.fieldname
+    createUserDto.imageUser = imageUser.filename
     return this.userService.createUser(createUserDto);
   }
 
