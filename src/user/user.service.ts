@@ -30,12 +30,15 @@ export class UserService {
 
     try {
       const passwordBcrypt = await password(createUserDto.password)
+
+      console.log(createUserDto.imageUser)
       
       const createUSer = await this.prisma.user.create({
         data: {
           name: createUserDto.name,
           email: createUserDto.email,
           password: passwordBcrypt,
+          imageUser: createUserDto.imageUser ?? null 
         }
       })
 
@@ -55,7 +58,7 @@ export class UserService {
         name: true,
         email: true,
         imageUser: true,
-        createAd: true,
+        createdAt: true,
         updatedAt: true,
       }
     })
@@ -72,7 +75,7 @@ export class UserService {
         name: true,
         email: true,
         imageUser: true,
-        createAd: true
+        createdAt: true
       }
     })
 
