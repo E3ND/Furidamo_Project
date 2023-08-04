@@ -33,8 +33,8 @@ model Publication {
   text      String
   like      Int
   deslike   Int
-  imageName String?
-  videoName String?
+  imageName Json[]    @default([])
+  videoName Json[]    @default([])
   edited    Boolean
 
   createdAt DateTime  @default(now())

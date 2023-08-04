@@ -4,6 +4,8 @@ import { UpdatePublicationDto } from './dto/update-publication.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { getToken } from 'src/utils/get-token';
+import * as fs from 'fs';
+import { uploadFiles } from 'src/common/utils/uploadFiles';
 
 @Injectable()
 export class PublicationService {
@@ -15,6 +17,18 @@ export class PublicationService {
   async createPublication(createPublicationDto: CreatePublicationDto, req: any) {
     try {
       const informationUser = getToken(req)
+      let jsonImageNames: any = {
+        name: []
+      }
+
+      if (createPublicationDto.imageName != null) {
+        console.log(createPublicationDto.imageName)
+        for (let key of createPublicationDto.imageName) {
+          jsonImageNames.name.push(key.toString())
+        }
+      } else {
+        jsonImageNames.name = ['null']
+      }
 
       return await this.prisma.publication.create({
         data: {
@@ -23,6 +37,7 @@ export class PublicationService {
           like: 0,
           deslike: 0,
           edited: false,
+          imageName: jsonImageNames.name,
           user: {
             connect: {
               id: informationUser.id,
@@ -33,7 +48,7 @@ export class PublicationService {
 
     } catch (error) {
       console.log(error)
-      return new HttpException('Erro ao criar um post!', HttpStatus.INTERNAL_SERVER_ERROR);
+      return new HttpException('Erro ao criar um post!', HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
   }
@@ -67,7 +82,7 @@ export class PublicationService {
     })
   }
 
-  async updatePublication(id: string, updatePublicationDto: UpdatePublicationDto, req: any) {
+  async updatePublication(id: string, updatePublicationDto: UpdatePublicationDto, req: any, imageFile: any) {
     const publication = await this.prisma.publication.findFirst({
       where: {
         id: id,
@@ -79,6 +94,32 @@ export class PublicationService {
     }
 
     const informationUser = getToken(req)
+    publication.imageName.map(imageName => {
+
+      fs.unlink(`./src/public/images/publications/${informationUser.id}/${imageName}`, (err) => {
+        if (err) {
+          console.error('Erro ao deletar o arquivo:', err);
+        }
+      });
+    })
+
+    const newFileImageUpdate = uploadFiles(imageFile, req)
+
+    return
+
+    let jsonImageNames: any = {
+      name: []
+    }
+
+
+    if (updatePublicationDto.imageName != null) {
+      console.log(updatePublicationDto.imageName)
+      for (let key of updatePublicationDto.imageName) {
+        jsonImageNames.name.push(key.toString())
+      }
+    } else {
+      jsonImageNames.name = ['null']
+    }
 
     if (publication.userId !== informationUser.id) {
       return new HttpException('Acão negada!', HttpStatus.UNAUTHORIZED);
@@ -96,6 +137,7 @@ export class PublicationService {
           like: 0,
           deslike: 0,
           edited: true,
+          imageName: jsonImageNames.name,
           updatedAt: new Date(Date.now()),
           user: {
             connect: {
