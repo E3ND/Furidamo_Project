@@ -20,19 +20,31 @@ function hashNameFolder(idUserLength: number) {
     return nameFile
 }
 
-export function uploadFiles(file: any, req: any) {
+export function uploadFiles(file: any, req: any, action: string) {
     const informationUser = getToken(req)
-    const folder = fs.readdirSync('./src/public/images/publications')
+    const folder = fs.readdirSync('./src/public/images/')
     let folderUser = null
+    let folderAction = null
     let arrayNameFiles = []
 
     folder.map(foldeName => {
         if (foldeName == informationUser.id) {
             folderUser = foldeName
+            const folderActionName = fs.readdirSync(`./src/public/images/${foldeName}`)
+
+            folderActionName.map(actionFolder => {
+                if(actionFolder == action) {
+                    folderAction = action
+                }
+            })
         }
     })
 
     if (folderUser) {
+        if(!folderAction) {
+            fs.mkdirSync(`./src/public/images/${informationUser.id}/${action}`)
+        }
+
         file.map(fileInformation => {
             const nameFile = hashNameFolder(informationUser.id.length)
 
@@ -40,7 +52,7 @@ export function uploadFiles(file: any, req: any) {
 
             const formatFile = fileInformation.originalname.split('.')[1]
 
-            fs.writeFile(`./src/public/images/publications/${folderUser}/${nameFile}.${formatFile}`, buffer, (err) => {
+            fs.writeFile(`./src/public/images/${folderUser}/${action}/${nameFile}.${formatFile}`, buffer, (err) => {
                 if (err) {
                     console.error('Erro ao escrever o arquivo:', err);
                 }
@@ -49,7 +61,8 @@ export function uploadFiles(file: any, req: any) {
             arrayNameFiles.push(`${nameFile}.${formatFile}`)
         })
     } else {
-        fs.mkdirSync(`./src/public/images/publications/${informationUser.id}`);
+        fs.mkdirSync(`./src/public/images/${informationUser.id}`)
+        fs.mkdirSync(`./src/public/images/${informationUser.id}/${action}`)
 
         file.map(fileInformation => {
             const nameFile = hashNameFolder(informationUser.id.length)
@@ -58,7 +71,7 @@ export function uploadFiles(file: any, req: any) {
 
             const formatFile = fileInformation.originalname.split('.')[1]
 
-            fs.writeFile(`./src/public/images/publications/${informationUser.id}/${nameFile}.${formatFile}`, buffer, (err) => {
+            fs.writeFile(`./src/public/images/${informationUser.id}/${action}/${nameFile}.${formatFile}`, buffer, (err) => {
                 if (err) {
                     console.error('Erro ao escrever o arquivo:', err);
                 }

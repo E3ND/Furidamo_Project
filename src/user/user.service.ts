@@ -31,8 +31,6 @@ export class UserService {
     try {
       const passwordBcrypt = await password(createUserDto.password)
 
-      console.log(createUserDto.imageUser)
-      
       const createUSer = await this.prisma.user.create({
         data: {
           name: createUserDto.name,

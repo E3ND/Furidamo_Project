@@ -9,7 +9,7 @@ import * as fs from 'fs';
 
 import { Request } from 'express';
 import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { uploadFiles } from 'src/common/utils/uploadFiles';
+import { uploadFiles } from 'src/utils/uploadFiles';
 
 @Controller('publication')
 export class PublicationController {
@@ -22,16 +22,17 @@ export class PublicationController {
       { name: 'imageName', maxCount: 50 },
     ])
   )
-  async createPublication(@Body() createPublicationDto: any, @Req() req: Request, @UploadedFiles() images: Express.Multer.File) {
+  async createPublication(@Body() createPublicationDto: CreatePublicationDto, @Req() req: Request, @UploadedFiles() images: Express.Multer.File) {
+    let imagesNames = null
     if(images["imageName"] && images["imageName"].length > 5) {
       return new HttpException('Não pode pode ultrapassar o total de 5 imagens!', HttpStatus.BAD_REQUEST)
   }
 
     if(images["imageName"] != null) {
-      createPublicationDto.imageName = uploadFiles(images["imageName"], req)
+      imagesNames = uploadFiles(images["imageName"], req, 'publications')
     }
 
-    return this.publicationService.createPublication(createPublicationDto, req);
+    return this.publicationService.createPublication(createPublicationDto, req, imagesNames);
   }
 
   @Get()

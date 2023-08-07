@@ -5,7 +5,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { getToken } from 'src/utils/get-token';
 import * as fs from 'fs';
-import { uploadFiles } from 'src/common/utils/uploadFiles';
+import { uploadFiles } from 'src/utils/uploadFiles';
 
 @Injectable()
 export class PublicationService {
@@ -14,16 +14,16 @@ export class PublicationService {
     private prisma: PrismaService,
   ) { }
 
-  async createPublication(createPublicationDto: CreatePublicationDto, req: any) {
+  async createPublication(createPublicationDto: CreatePublicationDto, req: any, imagesNames: string) {
     try {
       const informationUser = getToken(req)
       let jsonImageNames: any = {
         name: []
       }
 
-      if (createPublicationDto.imageName != null) {
-        console.log(createPublicationDto.imageName)
-        for (let key of createPublicationDto.imageName) {
+      if (imagesNames != null) {
+
+        for (let key of imagesNames) {
           jsonImageNames.name.push(key.toString())
         }
       } else {
@@ -103,7 +103,7 @@ export class PublicationService {
       });
     })
 
-    const newFileImageUpdate = uploadFiles(imageFile, req)
+    const newFileImageUpdate = uploadFiles(imageFile, req, 'publications')
 
     return
 
