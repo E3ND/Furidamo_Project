@@ -15,7 +15,7 @@ model User {
   name              String 
   email             String    @unique
   password          String
-  imageUser         String?
+  imageName         Json[]    @default([])
   likePublications  Json[]    @default([])
 
   createdAt         DateTime  @default(now())
@@ -31,8 +31,8 @@ model Publication {
   id        String   @id @default(uuid())
   title     String
   text      String
-  like      Int
-  deslike   Int
+  like      Json[]    @default([])
+  deslike   Json[]    @default([])
   imageName Json[]    @default([])
   videoName Json[]    @default([])
   edited    Boolean
@@ -50,15 +50,15 @@ model Publication {
 model Comment {
   id            String   @id @default(uuid())
   text          String
-  like          Int
-  deslike       Int
+  like          Json[]    @default([])
+  deslike       Json[]    @default([])
   imageName     String?
   videoName     String?
   edited        Boolean
 
   createdAt     DateTime  @default(now())
-  updatedAt DateTime?  
-  deletedAt DateTime? 
+  updatedAt     DateTime?  
+  deletedAt     DateTime? 
 
   puclicationId String
   publication   Publication @relation(fields: [puclicationId], references: [id])

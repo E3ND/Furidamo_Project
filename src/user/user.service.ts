@@ -7,6 +7,8 @@ import { getToken } from 'src/utils/get-token';
 import { password } from 'src/utils/password';
 import { AuthService } from 'src/auth/auth.service';
 
+import * as fs from 'fs';
+
 @Injectable()
 export class UserService {
   constructor(
@@ -36,7 +38,7 @@ export class UserService {
           name: createUserDto.name,
           email: createUserDto.email,
           password: passwordBcrypt,
-          imageUser: createUserDto.imageUser ?? null 
+          imageName: null 
         }
       })
 
@@ -55,7 +57,7 @@ export class UserService {
         id: true,
         name: true,
         email: true,
-        imageUser: true,
+        imageName: true,
         createdAt: true,
         updatedAt: true,
       }
@@ -72,7 +74,7 @@ export class UserService {
         id: true,
         name: true,
         email: true,
-        imageUser: true,
+        imageName: true,
         createdAt: true
       }
     })
@@ -84,7 +86,7 @@ export class UserService {
     return user
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto, req:any) {
+  async updateUser(id: string, updateUserDto: UpdateUserDto, req:any, imagesNames: string) {
     const user = await this.prisma.user.findFirst({
       where: {
           id: id,
@@ -100,10 +102,35 @@ export class UserService {
 
     if(informationUser.id !== user.id) {
       return new HttpException('Acesso negado!', HttpStatus.UNAUTHORIZED);
-    }
+    } 
 
     try {
+      let jsonImageNames: any = {
+        name: []
+      }
+  
+      if (imagesNames != null) {
+  
+        for (let key of imagesNames) {
+          jsonImageNames.name.push(key.toString())
+        }
+      } else {
+        jsonImageNames.name = ['null']
+      }
+
       const passwordBcrypt = await password(updateUserDto.password)
+
+      if(jsonImageNames.name[0] === 'null') {
+        jsonImageNames.name = user.imageName
+      } else {
+        user.imageName.map(imageName => {
+          fs.unlink(`./src/public/images/${user.id}/user/${imageName}`, (err) => {
+            if (err) {
+              console.error('Erro ao deletar o arquivo:', err);
+            }
+          });
+        })
+      }
 
       const userUpdate = await this.prisma.user.update({
         where: {
@@ -114,8 +141,8 @@ export class UserService {
           name: updateUserDto.name,
           email: user.email,
           password: passwordBcrypt,
-          imageUser: updateUserDto.imageUser,
-          updatedAt: new Date(Date.now())
+          updatedAt: new Date(Date.now()),
+          imageName: jsonImageNames.name
         }
       })
 

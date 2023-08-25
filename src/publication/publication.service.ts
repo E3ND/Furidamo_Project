@@ -34,8 +34,8 @@ export class PublicationService {
         data: {
           title: createPublicationDto.title,
           text: createPublicationDto.text,
-          like: 0,
-          deslike: 0,
+          like: ['null'],
+          deslike: ['null'],
           edited: false,
           imageName: jsonImageNames.name,
           user: {
@@ -73,7 +73,7 @@ export class PublicationService {
             id: true,
             name: true,
             email: true,
-            imageUser: true,
+            imageName: true,
             createdAt: true
           }
         },
@@ -94,27 +94,14 @@ export class PublicationService {
     }
 
     const informationUser = getToken(req)
-    publication.imageName.map(imageName => {
-
-      fs.unlink(`./src/public/images/publications/${informationUser.id}/${imageName}`, (err) => {
-        if (err) {
-          console.error('Erro ao deletar o arquivo:', err);
-        }
-      });
-    })
-
-    const newFileImageUpdate = uploadFiles(imageFile, req, 'publications')
-
-    return
 
     let jsonImageNames: any = {
       name: []
     }
 
+    if (imageFile != null) {
 
-    if (updatePublicationDto.imageName != null) {
-      console.log(updatePublicationDto.imageName)
-      for (let key of updatePublicationDto.imageName) {
+      for (let key of imageFile) {
         jsonImageNames.name.push(key.toString())
       }
     } else {
@@ -123,6 +110,18 @@ export class PublicationService {
 
     if (publication.userId !== informationUser.id) {
       return new HttpException('Acão negada!', HttpStatus.UNAUTHORIZED);
+    }
+
+    if(jsonImageNames.name[0] === 'null') {
+      jsonImageNames.name = publication.imageName
+    } else {
+      publication.imageName.map(imageName => {
+        fs.unlink(`./src/public/images/${informationUser.id}/publications/${imageName}`, (err) => {
+          if (err) {
+            console.error('Erro ao deletar o arquivo:', err);
+          }
+        });
+      })
     }
 
     try {
@@ -134,8 +133,8 @@ export class PublicationService {
         data: {
           title: updatePublicationDto.title,
           text: updatePublicationDto.text,
-          like: 0,
-          deslike: 0,
+          like: ['null'],
+          deslike: ['null'],
           edited: true,
           imageName: jsonImageNames.name,
           updatedAt: new Date(Date.now()),
