@@ -9,7 +9,4 @@ export class CreatePublicationDto {
 
     @IsOptional()
     imageName: string;
-
-    @IsOptional()
-    videoName: string;
 }
