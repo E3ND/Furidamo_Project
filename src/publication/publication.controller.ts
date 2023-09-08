@@ -12,6 +12,7 @@ import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestj
 import { uploadFiles } from 'src/utils/uploadFiles';
 import { checkTypeFile } from '../utils/check-type-file';
 
+//CRUD
 @Controller('publication')
 export class PublicationController {
   constructor(private readonly publicationService: PublicationService) {}
@@ -23,6 +24,8 @@ export class PublicationController {
       { name: 'imageName', maxCount: 50 },
     ])
   )
+
+  //CRUD
   async createPublication(@Body() createPublicationDto: CreatePublicationDto, @Req() req: Request, @UploadedFiles() images: Express.Multer.File) {
     let imagesNames = null
     if(images["imageName"]) {
@@ -88,5 +91,18 @@ export class PublicationController {
   @Delete('/delete/:id')
   deletePublication(@Param('id') id: string, @Req() req: Request) {
     return this.publicationService.deletePublication(id, req);
+  }
+
+  //Like and Deslike
+  @UseGuards(AuthGuard)
+  @Patch('/like/:publicationId')
+  likePublication(@Param('publicationId') publicationId: string, @Req() req: Request) {
+    return this.publicationService.likePublication(publicationId, req)
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('/deslike/:publicationId')
+  deslikePublication(@Param('publicationId') publicationId: string, @Req() req: Request) {
+    return this.publicationService.deslikePublication(publicationId, req)
   }
 }

@@ -194,4 +194,104 @@ export class PublicationService {
       return new HttpException('Erro ao excluir!', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async likePublication(publicationId: string, req: any) {
+    const informationUser = getToken(req)
+    let userLiked = false
+   
+    const publication = await this.prisma.publication.findFirst({
+      where: {
+        id: publicationId
+      }
+    })
+
+    if(!publication) return new HttpException('Publicação não encontrada!', HttpStatus.NOT_FOUND);
+
+    for(let i = 0; i < publication.like.length; i++) {
+      if(publication.like[i] === informationUser.id) {
+        publication.like.splice(i, 1)
+        userLiked = true
+      }
+    }
+
+    if(!userLiked) {
+      publication.like.push(informationUser.id)
+
+      for(let j = 0; j < publication.deslike.length; j++) {
+        if(publication.deslike[j] === informationUser.id) {
+          publication.deslike.splice(j, 1)
+
+          await this.prisma.publication.update({
+            where: {
+              id: publicationId,
+            },
+            data: {
+              deslike: publication.deslike
+            }
+          })
+        }
+      }
+    }
+
+    await this.prisma.publication.update({
+      where: {
+        id: publicationId
+      },
+      data: {
+        like: publication.like
+      }
+    })
+
+    return new HttpException('', HttpStatus.OK);
+  }
+
+  async deslikePublication(publicationId: string, req: any) {
+    const informationUser = getToken(req)
+    let userDeslike = false
+   
+    const publication = await this.prisma.publication.findFirst({
+      where: {
+        id: publicationId
+      }
+    })
+
+    if(!publication) return new HttpException('Publicação não encontrada!', HttpStatus.NOT_FOUND);
+
+    for(let i = 0; i < publication.deslike.length; i++) {
+      if(publication.deslike[i] === informationUser.id) {
+        publication.deslike.splice(i, 1)
+        userDeslike = true
+      }
+    }
+
+    if(!userDeslike) {
+      publication.deslike.push(informationUser.id)
+
+      for(let j = 0; j < publication.like.length; j++) {
+        if(publication.like[j] === informationUser.id) {
+          publication.like.splice(j, 1)
+
+          await this.prisma.publication.update({
+            where: {
+              id: publicationId,
+            },
+            data: {
+              like: publication.like
+            }
+          })
+        }
+      }
+    }
+
+    await this.prisma.publication.update({
+      where: {
+        id: publicationId
+      },
+      data: {
+        deslike: publication.deslike
+      }
+    })
+
+    return new HttpException('', HttpStatus.OK);
+  }
 }
