@@ -13,7 +13,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import * as fs from 'fs';
 import { uploadFiles } from 'src/utils/uploadFiles';
-import { checkTypeFile } from 'src/utils/check-type-file';
+import { checkTypeFileImage } from 'src/utils/check-type-file';
 
 @Controller('user/')
 export class UserController {
@@ -60,14 +60,14 @@ export class UserController {
         throw new HttpException('Não pode pode ultrapassar o total de 1 imagens!', HttpStatus.BAD_REQUEST)
       }
   
-      const typeFile = checkTypeFile(images["imageUser"])
+      const typeFile = checkTypeFileImage(images["imageUser"])
    
       if(typeFile < images["imageUser"].length) {
         throw new HttpException('As imagens devem ser do tipo JPG, PNG ou JPEG', HttpStatus.BAD_REQUEST)
       }
   
       if(images["imageUser"] != null) {
-        imagesNames = uploadFiles(images["imageUser"], req, 'user')
+        imagesNames = uploadFiles(images["imageUser"], req, 'user', 'images')
       }
 
     }

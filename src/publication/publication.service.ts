@@ -6,6 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { getToken } from 'src/utils/get-token';
 import * as fs from 'fs';
 import { uploadFiles } from 'src/utils/uploadFiles';
+import { IGetToken } from 'src/auth';
 
 @Injectable()
 export class PublicationService {
@@ -14,20 +15,31 @@ export class PublicationService {
     private prisma: PrismaService,
   ) { }
 
-  async createPublication(createPublicationDto: CreatePublicationDto, req: any, imagesNames: string) {
+  async createPublication(createPublicationDto: CreatePublicationDto, req: any, imagesNames: string, videoName: string) {
     try {
-      const informationUser = getToken(req)
+      const informationUser:IGetToken.Params = getToken(req)
       let jsonImageNames: any = {
         name: []
       }
 
-      if (imagesNames != null) {
+      let jsonVideoNames: any = {
+        name: []
+      }
 
+      if (imagesNames != null) {
         for (let key of imagesNames) {
           jsonImageNames.name.push(key.toString())
         }
       } else {
         jsonImageNames.name = ['null']
+      }
+
+      if (videoName != null) {
+        for (let key of videoName) {
+          jsonVideoNames.name.push(key.toString())
+        }
+      } else {
+        jsonVideoNames.name = ['null']
       }
 
       return await this.prisma.publication.create({
@@ -38,6 +50,7 @@ export class PublicationService {
           deslike: ['null'],
           edited: false,
           imageName: jsonImageNames.name,
+          videoName: jsonVideoNames.name,
           user: {
             connect: {
               id: informationUser.id,
@@ -93,7 +106,7 @@ export class PublicationService {
       return new HttpException('Publicação não encontrada!', HttpStatus.NOT_FOUND);
     }
 
-    const informationUser = getToken(req)
+    const informationUser:IGetToken.Params = getToken(req)
 
     let jsonImageNames: any = {
       name: []
@@ -163,7 +176,7 @@ export class PublicationService {
       return new HttpException('Publicação não encontrada!', HttpStatus.NOT_FOUND);
     }
 
-    const informationUser = getToken(req)
+    const informationUser:IGetToken.Params = getToken(req)
 
     if (publication.userId !== informationUser.id) {
       return new HttpException('Acão negada!', HttpStatus.UNAUTHORIZED);
@@ -196,7 +209,7 @@ export class PublicationService {
   }
 
   async likePublication(publicationId: string, req: any) {
-    const informationUser = getToken(req)
+    const informationUser:IGetToken.Params = getToken(req)
     let userLiked = false
    
     const publication = await this.prisma.publication.findFirst({
@@ -246,7 +259,7 @@ export class PublicationService {
   }
 
   async deslikePublication(publicationId: string, req: any) {
-    const informationUser = getToken(req)
+    const informationUser:IGetToken.Params = getToken(req)
     let userDeslike = false
    
     const publication = await this.prisma.publication.findFirst({
@@ -293,5 +306,23 @@ export class PublicationService {
     })
 
     return new HttpException('', HttpStatus.OK);
+  }
+
+  async getPublicationsComments(publicationId: string) {
+    const publication = await this.prisma.publication.findFirst({
+      where: {
+        id: publicationId
+      },
+      include: {
+        comments: true,
+      }
+    })
+
+    if(!publication) {
+      throw new HttpException('Publicação não encontrada!', HttpStatus.NOT_FOUND);
+    }
+    
+
+    return new HttpException(publication, HttpStatus.OK)
   }
 }

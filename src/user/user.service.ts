@@ -8,6 +8,7 @@ import { password } from 'src/utils/password';
 import { AuthService } from 'src/auth/auth.service';
 
 import * as fs from 'fs';
+import { IGetToken } from 'src/auth';
 
 @Injectable()
 export class UserService {
@@ -98,7 +99,7 @@ export class UserService {
       return new HttpException('Usuário não encontrado!', HttpStatus.NOT_FOUND);
     }
 
-    const informationUser = getToken(req)
+    const informationUser:IGetToken.Params = getToken(req)
 
     if(informationUser.id !== user.id) {
       return new HttpException('Acesso negado!', HttpStatus.UNAUTHORIZED);
@@ -156,7 +157,7 @@ export class UserService {
   }
 
   async deleteUser(id: string, req:any) {
-    const informationUser = getToken(req)
+    const informationUser:IGetToken.Params = getToken(req)
     const user = await this.prisma.user.findFirst({
       where: {
         id: id,
@@ -186,7 +187,8 @@ export class UserService {
     try {
       await this.prisma.user.delete({
         where: {
-          id: user.id
+          id: user.id,
+          deletedAt: null
         }
       })
 

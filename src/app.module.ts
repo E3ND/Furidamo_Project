@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { PublicationModule } from './publication/publication.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PublicationModule } from './publication/publication.module';
     AuthModule,
     ConfigModule.forRoot(),
     PublicationModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [
