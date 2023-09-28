@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import * as fs from 'fs';
+import { IGetToken } from 'src/auth';
 import { getToken } from 'src/utils/get-token';
 
 function hashNameFolder(idUserLength: number) {
@@ -20,17 +21,25 @@ function hashNameFolder(idUserLength: number) {
     return nameFile
 }
 
-export function uploadFiles(file: any, req: any, action: string) {
-    const informationUser = getToken(req)
-    const folder = fs.readdirSync('./src/public/images/')
+export function uploadFiles(file: any, req: any, action: string, type: string) {
+    const informationUser:IGetToken.Params = getToken(req)
     let folderUser = null
     let folderAction = null
     let arrayNameFiles = []
 
+    let folder = null
+
+    if(type === 'images') {
+        folder = fs.readdirSync('./src/public/images/')
+    } else if(type === 'video') {
+        folder = fs.readdirSync('./src/public/video/')
+    }
+
     folder.map(foldeName => {
         if (foldeName == informationUser.id) {
             folderUser = foldeName
-            const folderActionName = fs.readdirSync(`./src/public/images/${foldeName}`)
+            
+            const folderActionName = fs.readdirSync(`./src/public/${type}/${foldeName}`)
 
             folderActionName.map(actionFolder => {
                 if(actionFolder == action) {
@@ -42,7 +51,7 @@ export function uploadFiles(file: any, req: any, action: string) {
 
     if (folderUser) {
         if(!folderAction) {
-            fs.mkdirSync(`./src/public/images/${informationUser.id}/${action}`)
+            fs.mkdirSync(`./src/public/${type}/${informationUser.id}/${action}`)
         }
 
         file.map(fileInformation => {
@@ -52,7 +61,7 @@ export function uploadFiles(file: any, req: any, action: string) {
 
             const formatFile = fileInformation.originalname.split('.')[1]
 
-            fs.writeFile(`./src/public/images/${folderUser}/${action}/${nameFile}.${formatFile}`, buffer, (err) => {
+            fs.writeFile(`./src/public/${type}/${folderUser}/${action}/${nameFile}.${formatFile}`, buffer, (err) => {
                 if (err) {
                     console.error('Erro ao escrever o arquivo:', err);
                 }
@@ -61,8 +70,8 @@ export function uploadFiles(file: any, req: any, action: string) {
             arrayNameFiles.push(`${nameFile}.${formatFile}`)
         })
     } else {
-        fs.mkdirSync(`./src/public/images/${informationUser.id}`)
-        fs.mkdirSync(`./src/public/images/${informationUser.id}/${action}`)
+        fs.mkdirSync(`./src/public/${type}/${informationUser.id}`)
+        fs.mkdirSync(`./src/public/${type}/${informationUser.id}/${action}`)
 
         file.map(fileInformation => {
             const nameFile = hashNameFolder(informationUser.id.length)
@@ -71,7 +80,7 @@ export function uploadFiles(file: any, req: any, action: string) {
 
             const formatFile = fileInformation.originalname.split('.')[1]
 
-            fs.writeFile(`./src/public/images/${informationUser.id}/${action}/${nameFile}.${formatFile}`, buffer, (err) => {
+            fs.writeFile(`./src/public/${type}/${informationUser.id}/${action}/${nameFile}.${formatFile}`, buffer, (err) => {
                 if (err) {
                     console.error('Erro ao escrever o arquivo:', err);
                 }
@@ -80,6 +89,6 @@ export function uploadFiles(file: any, req: any, action: string) {
             arrayNameFiles.push(`${nameFile}.${formatFile}`)
         })
     }
-    
+
     return arrayNameFiles
 }

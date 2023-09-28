@@ -1,9 +1,6 @@
 import { IsOptional, IsString } from "class-validator";
 
-export class CreatePublicationDto {
-    @IsString()
-    title: string;
-
+export class CreateCommentDto {
     @IsString()
     text: string;
 
@@ -11,5 +8,5 @@ export class CreatePublicationDto {
     imageName: string;
 
     @IsOptional()
-    videoName: string;
+    imageVideo: string;
 }
