@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { PublicationModule } from './publication/publication.module';
 import { CommentModule } from './comment/comment.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CommentModule } from './comment/comment.module';
     ConfigModule.forRoot(),
     PublicationModule,
     CommentModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [

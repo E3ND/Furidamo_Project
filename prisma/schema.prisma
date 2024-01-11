@@ -25,6 +25,10 @@ model User {
 
   publications      Publication[]
   comments          Comment[]
+  chatUsers         ChatUser[]
+
+  messageSent Chat[] @relation("sent")
+  messageReceived Chat[] @relation("received")
 }
 
 model Publication {
@@ -65,4 +69,36 @@ model Comment {
 
   userId        String
   user          User     @relation(fields: [userId], references: [id])
+}
+
+model Chat {
+  id String   @id @default(uuid())
+  message String
+  createdAt DateTime  @default(now())
+
+  senderId String
+  sender User @relation("sent", fields: [senderId], references: [id])
+
+  recipientId String
+  recipient User @relation("received", fields: [recipientId], references: [id])
+
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+}
+
+model Conversation {
+  id String   @id @default(uuid())
+
+  chat Chat[]
+  chatUser ChatUser[]
+}
+
+model ChatUser {
+  id String   @id @default(uuid())
+
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  conversationId String
+  conversation Conversation @relation(fields: [conversationId], references: [id])
 }

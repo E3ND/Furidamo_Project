@@ -15,7 +15,7 @@ import * as fs from 'fs';
 import { uploadFiles } from 'src/utils/uploadFiles';
 import { checkTypeFileImage } from 'src/utils/check-type-file';
 
-@Controller('user/')
+@Controller('user')
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -39,7 +39,7 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
-  @Get(':id')
+  @Get('/:id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
   }
