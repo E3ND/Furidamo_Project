@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PublicationModule } from './publication/publication.module';
 import { CommentModule } from './comment/comment.module';
 import { ChatModule } from './chat/chat.module';
+import { NodemailerModule } from './nodemailer/nodemailer.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ChatModule } from './chat/chat.module';
     PublicationModule,
     CommentModule,
     ChatModule,
+    NodemailerModule,
   ],
   controllers: [AppController],
   providers: [

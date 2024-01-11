@@ -17,6 +17,7 @@ model User {
   password          String
   imageName         Json[]    @default([])
   likePublications  Json[]    @default([])
+  token             String    @default("")
 
   createdAt         DateTime  @default(now())
   updatedAt         DateTime?  
