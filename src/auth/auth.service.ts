@@ -10,6 +10,9 @@ import { ForgotPasswordDto } from './dto/forgot-password';
 import { NodeMailerService } from 'src/nodemailer/nodemailer.service';
 import { recoveryPasswordDto } from './dto/recovery-password';
 import { password } from 'src/utils/password';
+import { ChangePasswordDto } from './dto/change-password';
+import { IGetToken } from '.';
+import { getToken } from 'src/utils/get-token';
 
 @Injectable()
 export class AuthService {
@@ -17,24 +20,24 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private readonly nodeMailerService: NodeMailerService,
-    ) {}
+  ) { }
 
   async signIn(email: string, password: string): Promise<any> {
     const user = await this.prisma.user.findFirst({
-        where: {
-            email: email,
-            deletedAt: null
-        }
+      where: {
+        email: email,
+        deletedAt: null
+      }
     })
-    
-    if(!user) {
-      return new HttpException('Usuário não encontrado!', HttpStatus.NOT_FOUND);
+
+    if (!user) {
+      return new HttpException('Usuário não encontrado', HttpStatus.NOT_FOUND);
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      throw new UnauthorizedException();
+      throw new HttpException('Email ou senha incorretos', HttpStatus.FORBIDDEN);
     }
     const payload = { id: user.id, email: user.email, name: user.name };
     return {
@@ -51,7 +54,7 @@ export class AuthService {
       }
     })
 
-    if(!user) {
+    if (!user) {
       throw new HttpException('Usuário não encontrado', HttpStatus.NOT_FOUND)
     }
 
@@ -83,7 +86,7 @@ export class AuthService {
       where: {
         id: user.id
       },
-      data : {
+      data: {
         token: token
       }
     })
@@ -102,14 +105,24 @@ export class AuthService {
   async recoveryPassword(params: recoveryPasswordDto) {
     let userInformation = null
     jwt.verify(params.token, process.env.FORGOT_PASSWORD_SECRET, (err, decoded) => {
-      if(err) {
+      if (err) {
         throw new HttpException('Token inválido', HttpStatus.UNAUTHORIZED)
       }
       return userInformation = decoded
     })
 
-    if(params.email !== userInformation.userEmail) {
+    if (params.email !== userInformation.userEmail) {
       throw new HttpException('Não autorizado', HttpStatus.UNAUTHORIZED)
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        token: params.token
+      }
+    })
+
+    if (!user) {
+      throw new HttpException('Token inválido', HttpStatus.UNAUTHORIZED)
     }
 
     const passwordHash = await password(params.password)
@@ -124,9 +137,40 @@ export class AuthService {
     })
 
     const payload = { id: userInformation.userId, email: userInformation.userEmail, name: userInformation.userName };
+
     return {
       user_id: userInformation.userId,
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: await this.jwtService.signAsync(payload, { secret: process.env.JWT_SECRET }),
     };
+
+  }
+
+  async changePassword(params: ChangePasswordDto, req: any) {
+    const informationUser: IGetToken.Params = getToken(req)
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: informationUser.id
+      }
+    })
+
+    const tverifyPassword = await bcrypt.compare(params.oldPassword, user.password)
+
+    if (!tverifyPassword) {
+      throw new HttpException('Senha inválida', HttpStatus.UNAUTHORIZED)
+    }
+
+    const passwordHash = await password(params.password)
+
+    await this.prisma.user.update({
+      where: {
+        id: informationUser.id,
+      },
+      data: {
+        password: passwordHash
+      }
+    })
+
+    return
   }
 }
