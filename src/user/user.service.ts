@@ -39,7 +39,7 @@ export class UserService {
           name: createUserDto.name,
           email: createUserDto.email,
           password: passwordBcrypt,
-          imageName: null 
+          imageName: [] 
         }
       })
 
