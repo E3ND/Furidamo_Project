@@ -28,7 +28,7 @@ export class UserService {
     })
 
     if(user) {
-      return new HttpException('Usuário já existente!', HttpStatus.CONFLICT);
+      throw new HttpException('Usuário já existente!', HttpStatus.CONFLICT);
     }
 
     try {
@@ -48,7 +48,7 @@ export class UserService {
 
     } catch (error) {
       console.log(error)
-      return new HttpException('Erro no servidor, tente novamente mais tarde!', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Erro no servidor, tente novamente mais tarde!', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -81,7 +81,7 @@ export class UserService {
     })
 
     if(!user) {
-      return new HttpException('Usuário não encontrado!', HttpStatus.NOT_FOUND);
+      throw new HttpException('Usuário não encontrado!', HttpStatus.NOT_FOUND);
     }
 
     return user
@@ -96,13 +96,13 @@ export class UserService {
   })
    
     if(!user) {
-      return new HttpException('Usuário não encontrado!', HttpStatus.NOT_FOUND);
+      throw new HttpException('Usuário não encontrado!', HttpStatus.NOT_FOUND);
     }
 
     const informationUser:IGetToken.Params = getToken(req)
 
     if(informationUser.id !== user.id) {
-      return new HttpException('Acesso negado!', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Acesso negado!', HttpStatus.UNAUTHORIZED);
     } 
 
     try {
@@ -152,7 +152,7 @@ export class UserService {
       return userUpdate
     } catch (error) {
       console.log(error)
-      return new HttpException('Erro no servidor, tente novamente mais tarde!', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Erro no servidor, tente novamente mais tarde!', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -166,11 +166,11 @@ export class UserService {
     })
 
     if(!user) {
-      return new HttpException('Usuário não encontrado!', HttpStatus.NOT_FOUND);
+      throw new HttpException('Usuário não encontrado!', HttpStatus.NOT_FOUND);
     }
 
     if(informationUser.id !== user.id) {
-      return new HttpException('Acesso negado!', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Acesso negado!', HttpStatus.UNAUTHORIZED);
     }
 
     this.prisma.$use(async(params, next) => {
@@ -192,10 +192,10 @@ export class UserService {
         }
       })
 
-      return new HttpException('Deletado com sucesso!', HttpStatus.OK);
+      throw new HttpException('Deletado com sucesso!', HttpStatus.OK);
     } catch (error) {
       console.log(error)
-      return new HttpException('Erro no servidor, tente novamente mais tarde!', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Erro no servidor, tente novamente mais tarde!', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

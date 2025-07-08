@@ -30,14 +30,15 @@ export class AuthService {
       }
     })
 
+
     if (!user) {
-      return new HttpException('Usuário não encontrado', HttpStatus.NOT_FOUND);
+      throw new HttpException('Usuário não encontrado', HttpStatus.NOT_FOUND);
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      throw new HttpException('Email ou senha incorretos', HttpStatus.FORBIDDEN);
+      throw new HttpException('Email ou senha incorretos', HttpStatus.UNAUTHORIZED);
     }
     const payload = { id: user.id, email: user.email, name: user.name };
     return {
