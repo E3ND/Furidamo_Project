@@ -43,7 +43,6 @@ export class CommentService {
                 },
             })
         } catch (error) {
-            console.log(error)
             throw new HttpException('Erro ao criar um comentário!', HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
@@ -92,7 +91,6 @@ export class CommentService {
 
             return new HttpException('Atualizado com sucesso!', HttpStatus.INTERNAL_SERVER_ERROR)
         } catch (error) {
-            console.log(error)
             throw new HttpException('Erro au atualizar o comentário, tente novamente mais tarde!', HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
@@ -136,7 +134,6 @@ export class CommentService {
 
             return new HttpException('Excluído com sucesso!', HttpStatus.OK)
         } catch (error) {
-            console.log(error)
             throw new HttpException('Erro ao tentar excluir o comentário, tente novamente mais tarde!', HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }

@@ -60,7 +60,6 @@ export class PublicationService {
       })
 
     } catch (error) {
-      console.log(error)
       return new HttpException('Erro ao criar um post!', HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
@@ -203,7 +202,6 @@ export class PublicationService {
 
       return new HttpException('Excluído com sucesso!', HttpStatus.OK);
     } catch (error) {
-      console.log(error)
       return new HttpException('Erro ao excluir!', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

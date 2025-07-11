@@ -71,8 +71,6 @@ export class AuthService {
       { expiresIn: '1h' }
     )
 
-    console.log(token)
-
     const htmlTemplate = await fs.readFile('templates/forgot-password-template.html', 'utf-8');
 
     const $ = cheerio.load(htmlTemplate)

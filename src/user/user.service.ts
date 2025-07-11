@@ -47,7 +47,6 @@ export class UserService {
       return createUserToken
 
     } catch (error) {
-      console.log(error)
       throw new HttpException('Erro no servidor, tente novamente mais tarde!', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -151,7 +150,6 @@ export class UserService {
 
       return userUpdate
     } catch (error) {
-      console.log(error)
       throw new HttpException('Erro no servidor, tente novamente mais tarde!', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -194,7 +192,6 @@ export class UserService {
 
       throw new HttpException('Deletado com sucesso!', HttpStatus.OK);
     } catch (error) {
-      console.log(error)
       throw new HttpException('Erro no servidor, tente novamente mais tarde!', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

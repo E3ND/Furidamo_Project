@@ -80,7 +80,6 @@ export class ChatService {
             }
             
         } catch (error) {
-            console.log(error)
             throw new HttpException('Erro ao enviar a menssagem, tente novamente', HttpStatus.BAD_REQUEST)
         }
 
